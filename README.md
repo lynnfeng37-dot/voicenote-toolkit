@@ -1,58 +1,161 @@
 # VoiceNote
 
-VoiceNote is an extensible **speech-to-knowledge toolkit** that turns recordings into trustworthy
-transcripts, corrected transcripts, readable notes, and optional domain-specific meeting minutes.
+[![CI](https://github.com/lynnfeng37-dot/voicenote-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/lynnfeng37-dot/voicenote-toolkit/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB.svg)](https://www.python.org/)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Status: pre-alpha](https://img.shields.io/badge/status-pre--alpha-orange.svg)](#project-status)
 
-> **Status:** pre-alpha. Public interfaces may change before the first release; transcription,
-> auditable correction, source-grounded semantic extraction, and clean notes are implemented.
+**A correctable, traceable, and extensible speech-to-knowledge toolkit.**
 
-## Principles
-
-- **Correctable:** likely ASR errors can be reviewed and corrected under an explicit confidence
-  policy.
-- **Traceable:** the raw transcript is immutable, and downstream claims retain links to source
-  segments.
-- **Extensible:** transcription providers, reasoning providers, renderers, and domain skills are
-  independent extension points.
-
-VoiceNote favors fidelity over aggressive rewriting. It must not silently invent a correction when
-the evidence is weak, especially for names, dates, percentages, ticker symbols, and financial data.
-
-## Processing ladder
+VoiceNote turns recordings into faithful transcripts, auditable corrections, readable notes, and
+domain-specific meeting minutes. It is a Python library and CLI—not a one-off summarization demo.
 
 ```text
 Audio
-  -> Raw Transcript
-  -> Corrected Transcript + Correction Audit
-  -> Semantic Intermediate Representation
-  -> Clean Notes
-  -> Optional Domain Minutes
-  -> Optional Executive Brief
+  └─ Raw Transcript
+       └─ Corrected Transcript + Correction Audit
+            └─ Source-linked Semantic IR
+                 └─ Clean Notes
+                      └─ Finance Meeting Minutes
+                           └─ Executive Brief
 ```
 
-Every completed stage remains available in the final result. A later stage never replaces an
-earlier artifact.
+Every completed stage remains available. Later outputs never replace the evidence they came from.
 
-## Installation for development
+> VoiceNote is pre-alpha. The core workflow is implemented and tested, but public APIs may change
+> before the first stable release.
+
+## Why VoiceNote?
+
+Most transcription tools optimize for a polished final paragraph. VoiceNote optimizes for trust.
+
+- **Correctable** — ASR changes carry source spans, confidence, reasons, evidence, and decisions.
+- **Traceable** — semantic items, note sections, minutes, and brief points retain source segment IDs.
+- **Extensible** — transcription, correction, reasoning, renderers, and domain skills are separate.
+- **Fail-closed** — stale spans, conflicting edits, invented citations, and unsupported claims are
+  rejected instead of silently accepted.
+- **Privacy-conscious** — providers and network permissions must be selected explicitly.
+
+Sensitive entities such as names, companies, dates, percentages, monetary values, ticker symbols,
+valuation multiples, and financial metrics use stricter correction thresholds.
+
+## Features
+
+- Local transcription with `faster-whisper`
+- OpenAI transcription with timestamp and optional speaker-segment support
+- Schema-constrained transcript correction
+- Deterministic correction confidence policy and Markdown audit
+- Batched, source-grounded Semantic IR extraction
+- Adaptive clean notes without a rigid universal template
+- Finance Meeting Skill for research, portfolio, strategy, roadshow, and investment meetings
+- Per-point cited executive briefs
+- JSON and Markdown artifacts
+- Python API, CLI, and thin Codex/Agent Skill
+- Mockable provider interfaces and CI-tested Python 3.11/3.12 support
+
+## Installation
+
+VoiceNote is not yet published to PyPI. Install it from source:
 
 ```bash
+git clone https://github.com/lynnfeng37-dot/voicenote-toolkit.git
+cd voicenote-toolkit
 python -m venv .venv
-python -m pip install -e ".[dev]"
-pytest
 ```
 
-Provider SDKs are optional:
+Activate the environment:
 
 ```bash
-python -m pip install -e ".[openai]"
-python -m pip install -e ".[local-asr]"
+# macOS / Linux
+source .venv/bin/activate
+
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
 ```
 
-Cloud processing is never selected merely because an API key exists. The caller must choose a
-cloud provider explicitly.
+Install only the providers you need:
 
-The local provider also avoids network access by default. If model weights are not already present,
-the user must explicitly permit their download.
+```bash
+# Core package
+python -m pip install -e .
+
+# OpenAI providers
+python -m pip install -e ".[openai]"
+
+# Local faster-whisper transcription
+python -m pip install -e ".[local-asr]"
+
+# Development tools
+python -m pip install -e ".[dev]"
+```
+
+## Quick start
+
+### 1. Transcribe locally
+
+```bash
+voicenote meeting.m4a \
+  --provider local_whisper \
+  --allow-model-download \
+  --until transcript
+```
+
+Model downloads are disabled by default. After the weights are cached, omit
+`--allow-model-download` to keep the run offline.
+
+### 2. Generate corrected notes
+
+Set an API key in your environment, then explicitly authorize cloud processing:
+
+```bash
+export OPENAI_API_KEY="..."  # macOS / Linux
+# $env:OPENAI_API_KEY="..."  # Windows PowerShell
+
+voicenote meeting.m4a \
+  --provider local_whisper \
+  --correction-provider openai \
+  --reasoning-provider openai \
+  --allow-cloud \
+  --until notes
+```
+
+With this configuration, audio transcription stays local while corrected transcript text and
+Semantic IR are sent to the selected reasoning provider.
+
+### 3. Run the complete finance workflow
+
+```bash
+voicenote investment-meeting.m4a \
+  --provider local_whisper \
+  --correction-provider openai \
+  --reasoning-provider openai \
+  --skill finance_meeting \
+  --allow-cloud \
+  --until brief \
+  --output both
+```
+
+The command prints a new run directory containing the available stage artifacts:
+
+```text
+output/<run-id>/
+├── manifest.json
+├── raw_transcript.json
+├── corrected_transcript.json
+├── corrections.json
+├── corrections.md
+├── semantic_document.json
+├── notes.json
+├── notes.md
+├── meeting_minutes.json
+├── meeting_minutes.md
+├── executive_brief.json
+├── executive_brief.md
+├── result.json
+└── result.md
+```
+
+The source recording is not copied into the output directory.
 
 ## Python API
 
@@ -60,104 +163,153 @@ the user must explicitly permit their download.
 from voicenote import VoiceNote
 from voicenote.config import VoiceNoteConfig
 
-note = VoiceNote("meeting.m4a", config=VoiceNoteConfig(
+config = VoiceNoteConfig(
     transcription_provider="local_whisper",
     correction_provider="openai",
     reasoning_provider="openai",
     allow_cloud_processing=True,
-))
-result = note.process(
-    until="notes",
+)
+
+result = VoiceNote("investment-meeting.m4a", config=config).process(
+    until="brief",
     skill="finance_meeting",
 )
 
+print(result.raw_transcript)
 print(result.corrected_transcript)
 print(result.notes)
+print(result.meeting_minutes)
+print(result.executive_brief)
 ```
 
-Providers must be selected explicitly. Calling an unavailable stage raises a focused configuration
-error rather than uploading or fabricating content.
+For deterministic tests or transcription-only workflows, use `correction_provider="none"`.
 
-## CLI
+## Choose a stopping level
 
-```bash
-voicenote meeting.m4a --provider local_whisper --until transcript
-voicenote meeting.m4a --provider local_whisper --allow-model-download
-voicenote meeting.m4a --provider openai --allow-cloud --model whisper-1
-voicenote meeting.m4a --provider local_whisper --output markdown
-voicenote meeting.m4a --provider local_whisper --until corrected \
-  --correction-provider openai --allow-cloud --skill finance_meeting
-voicenote meeting.m4a --provider local_whisper --until notes \
-  --correction-provider openai --reasoning-provider openai --allow-cloud
-voicenote meeting.m4a --provider local_whisper --until brief \
-  --correction-provider openai --reasoning-provider openai \
-  --skill finance_meeting --allow-cloud
-```
-
-Installing an optional SDK or local model is always an explicit choice. The notes stage writes the
-Semantic IR and clean notes as separate JSON artifacts, plus Markdown with visible source citations.
-Finance Meeting minutes and per-point cited executive briefs are also available through the same
-pipeline.
+| `--until` | Output | Typical use |
+| --- | --- | --- |
+| `transcript` | Faithful ASR segments | Archival or downstream processing |
+| `corrected` | Corrected transcript and audit | Review-sensitive transcription |
+| `notes` | Semantic IR and readable notes | General meeting notes |
+| `minutes` | Domain-organized minutes | Professional finance documentation |
+| `brief` | Highly compressed cited brief | Executive review and follow-up |
 
 ## Correction policy
 
-Corrections are represented as structured proposals with source spans, confidence, reason, and
-evidence. The default policy is:
-
-| Confidence | Result |
+| Confidence | Default result |
 | --- | --- |
 | High | Apply automatically and record the change |
-| Medium | Apply and surface the change for review |
-| Low | Retain the original text and mark it uncertain |
+| Medium | Apply and flag it for review |
+| Low | Retain the original and mark it uncertain |
 
-Sensitive entities use stricter thresholds. Overlapping, stale, or source-mismatched proposals are
-rejected instead of being guessed into place.
-
-The correction model does not supply trusted character offsets. It returns an exact source token and
-occurrence index; VoiceNote locates the span locally, rejects unanchorable suggestions, and applies
-the deterministic confidence policy. Finance terminology is loaded from curated JSON reference data
-rather than embedded in provider code.
+The model proposes exact source text and an occurrence index—not trusted character offsets.
+VoiceNote anchors each proposal locally, checks for conflicts, applies stricter sensitive-entity
+thresholds, and records the final decision. See [the provider design](docs/providers.md).
 
 ## Finance Meeting Skill
 
-The first official domain skill detects meeting type, extracts finance-specific semantic fields,
-and chooses an appropriate structure. It does not force empty sections or use one fixed template.
-See [`src/voicenote/skills/finance_meeting`](src/voicenote/skills/finance_meeting) and
-[`docs/skills.md`](docs/skills.md).
+The first official domain skill supports:
+
+- fund manager and portfolio reviews
+- company research interviews
+- internal investment meetings
+- roadshows and strategy discussions
+- market, sector, company, valuation, catalyst, risk, decision, and action-item fields
+
+It classifies the meeting before choosing a structure, omits unsupported sections, preserves
+qualifications and attribution, and validates every citation against the Semantic IR. It does not
+force all meetings into one template.
+
+See [the skill design](docs/skills.md) and
+[`src/voicenote/skills/finance_meeting`](src/voicenote/skills/finance_meeting).
+
+## Provider boundaries
+
+| Capability | Built-in provider | Data boundary |
+| --- | --- | --- |
+| Transcription | `local_whisper` | Local; optional model download |
+| Transcription | `openai` | Audio is sent only with explicit cloud consent |
+| Correction | `openai` | Transcript text and selected references |
+| Correction | `none` | No external call |
+| Semantic extraction and organization | `openai` | Corrected text and structured IR |
+
+Importing VoiceNote never inspects API keys, contacts a service, or downloads a model. The presence
+of `OPENAI_API_KEY` does not itself authorize an upload.
+
+## Architecture
+
+```text
+src/voicenote/
+├── core/          immutable schemas and deterministic validation
+├── providers/     transcription, correction, and reasoning adapters
+├── skills/        domain-specific understanding and organization
+└── renderers/     JSON and Markdown presentation
+```
+
+The core package does not depend on a web API. New providers and skills can target stable,
+provider-neutral schemas instead of duplicating the pipeline.
+
+Further reading:
+
+- [Architecture](docs/architecture.md)
+- [Provider design](docs/providers.md)
+- [Domain skills](docs/skills.md)
+- [Privacy model](docs/privacy.md)
+- [Evaluation strategy](docs/evaluation.md)
 
 ## Privacy
 
-- Local paths are the default input boundary.
-- Provider selection is explicit.
-- Audio is not copied into the output directory by default.
-- Temporary files must have an explicit lifecycle and cleanup policy.
-- Logs must not contain transcript bodies or secrets by default.
-- Redaction is a distinct optional stage, never a silent mutation of the source transcript.
+- Source audio is never uploaded unless the selected transcription provider requires it and cloud
+  processing was explicitly authorized.
+- Local model download permission is separate from cloud-processing permission.
+- Transcript bodies, prompts, provider payloads, and secrets are not logged by default.
+- Generated artifacts are written to a fresh run directory; prior runs are not overwritten.
+- Redaction is intentionally separate from the immutable source transcript.
 
-See [`docs/privacy.md`](docs/privacy.md) for the planned threat model and provider rules.
+Review [the privacy model](docs/privacy.md) before processing confidential or market-sensitive
+recordings.
 
-## Project layout
+## Development
 
-```text
-src/voicenote/       core package, providers, skills, renderers
-tests/               unit, integration, and golden test cases
-docs/                architecture, provider, privacy, skill, and evaluation design
-.agents/skills/      thin Codex/Agent integration
+```bash
+python -m pip install -e ".[dev]"
+python -m pytest --cov=voicenote --cov-report=term-missing
+python -m ruff check .
+python -m mypy src/voicenote
 ```
 
-## Roadmap
+The current test suite uses fake providers; it does not upload recordings or call live model APIs.
 
-1. Architecture scaffold and contracts
-2. Audio validation plus local/cloud transcription adapters
-3. Auditable transcript correction
-4. Semantic IR and clean notes (implemented)
-5. Finance Meeting minutes and executive brief (implemented)
-6. Stable CLI, Python API, evaluation runner, and alpha release
+## Project status
 
-Speaker diarization, REST API, DOCX/HTML export, real-time transcription, and collaboration are
-intentionally outside the first MVP.
+Implemented:
 
-## Contributing and license
+- package architecture and provider contracts
+- local and OpenAI transcription adapters
+- auditable correction and sensitive-entity policy
+- source-linked Semantic IR and clean notes
+- Finance Meeting minutes and executive brief
+- JSON/Markdown artifacts, CLI, Python API, tests, CI, and Agent Skill
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md). VoiceNote is licensed under Apache-2.0.
+Planned after the MVP:
 
+- richer golden evaluation runner
+- stable plugin registration API
+- REST API
+- additional community domain skills
+- diarization UX, HTML/DOCX export, and real-time workflows
+
+## Contributing
+
+Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md), keep provider boundaries
+explicit, and add provenance-focused tests for new transformations.
+
+## License
+
+VoiceNote is available under the [Apache License 2.0](LICENSE).
+
+---
+
+### 中文简介
+
+VoiceNote 是一个强调**可纠错、可追溯、可扩展**的语音知识处理工具包。它保留原始转写，记录每一次纠错，并让笔记、财经会议纪要和执行摘要都能回溯到来源分段。项目默认不因为检测到 API Key 就上传文件；云端处理和本地模型下载都需要显式授权。
