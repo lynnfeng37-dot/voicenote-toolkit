@@ -1,0 +1,42 @@
+name = "finance_meeting"
+version = "0.1.0"
+description = "Organize finance meetings without forcing one fixed template."
+ir_version = "1"
+meeting_types = [
+  "fund_manager_review",
+  "company_research",
+  "internal_investment",
+  "roadshow",
+  "strategy_discussion",
+  "portfolio_review",
+  "unknown_finance",
+]
+semantic_fields = [
+  "performance_review",
+  "performance_attribution",
+  "market_view",
+  "macro_view",
+  "portfolio_change",
+  "sector_view",
+  "company_view",
+  "valuation",
+  "positioning",
+  "catalyst",
+  "risk",
+  "financial_metric",
+  "management_guidance",
+  "investment_thesis",
+  "contrarian_view",
+  "decision",
+  "action_item",
+  "open_question",
+  "qa",
+  "summary",
+]
+reference_files = [
+  "references/meeting_structures.md",
+  "references/semantic_fields.md",
+  "references/terminology.md",
+  "references/terminology.json",
+]
+

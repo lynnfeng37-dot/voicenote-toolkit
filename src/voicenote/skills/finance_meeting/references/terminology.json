@@ -1,0 +1,75 @@
+[
+  {
+    "canonical": "夏普比率",
+    "variants": ["Sharpe ratio", "夏普率"],
+    "category": "financial_metric",
+    "sensitive": true,
+    "notes": "Risk-adjusted return metric"
+  },
+  {
+    "canonical": "信息比率",
+    "variants": ["information ratio", "IR"],
+    "category": "financial_metric",
+    "sensitive": true
+  },
+  {
+    "canonical": "跟踪误差",
+    "variants": ["tracking error"],
+    "category": "financial_metric",
+    "sensitive": true
+  },
+  {
+    "canonical": "基点",
+    "variants": ["basis point", "basis points", "bp", "bps"],
+    "category": "financial_metric",
+    "sensitive": true
+  },
+  {
+    "canonical": "市盈率",
+    "variants": ["price-to-earnings", "P/E", "PE"],
+    "category": "valuation_multiple",
+    "sensitive": true
+  },
+  {
+    "canonical": "市净率",
+    "variants": ["price-to-book", "P/B", "PB"],
+    "category": "valuation_multiple",
+    "sensitive": true
+  },
+  {
+    "canonical": "企业价值",
+    "variants": ["enterprise value", "EV"],
+    "category": "valuation",
+    "sensitive": true
+  },
+  {
+    "canonical": "息税折旧摊销前利润",
+    "variants": ["EBITDA"],
+    "category": "financial_metric",
+    "sensitive": true
+  },
+  {
+    "canonical": "自由现金流",
+    "variants": ["free cash flow", "FCF"],
+    "category": "financial_metric",
+    "sensitive": true
+  },
+  {
+    "canonical": "管理资产规模",
+    "variants": ["assets under management", "AUM"],
+    "category": "financial_metric",
+    "sensitive": true
+  },
+  {
+    "canonical": "同比",
+    "variants": ["year over year", "YoY"],
+    "category": "financial_metric",
+    "sensitive": true
+  },
+  {
+    "canonical": "环比",
+    "variants": ["quarter over quarter", "QoQ"],
+    "category": "financial_metric",
+    "sensitive": true
+  }
+]
