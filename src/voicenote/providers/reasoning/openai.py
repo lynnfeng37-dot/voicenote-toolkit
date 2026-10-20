@@ -13,6 +13,7 @@ from voicenote.exceptions import (
     ProviderError,
 )
 from voicenote.providers.base import ReasoningProvider, ReasoningRequest
+from voicenote.providers.validation import validate_openai_configuration
 
 StructuredResult = TypeVar("StructuredResult", bound=BaseModel)
 
@@ -45,6 +46,13 @@ class OpenAIReasoningProvider(ReasoningProvider):
     ) -> None:
         self.config = config or OpenAIReasoningConfig()
         self._client = client
+
+    def validate_configuration(self) -> None:
+        validate_openai_configuration(
+            allow_cloud_processing=self.config.allow_cloud_processing,
+            has_client=self._client is not None,
+            operation="reasoning",
+        )
 
     def generate_structured(
         self,

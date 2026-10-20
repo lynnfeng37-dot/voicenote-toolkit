@@ -20,6 +20,7 @@ from voicenote.exceptions import (
     ProviderError,
 )
 from voicenote.providers.base import TranscriptionOptions, TranscriptionProvider
+from voicenote.providers.validation import validate_openai_configuration
 
 OPENAI_MAX_FILE_BYTES = 25 * 1024 * 1024
 
@@ -58,6 +59,13 @@ class OpenAITranscriptionProvider(TranscriptionProvider):
     ) -> None:
         self.config = config or OpenAITranscriptionConfig()
         self._client = client
+
+    def validate_configuration(self) -> None:
+        validate_openai_configuration(
+            allow_cloud_processing=self.config.allow_cloud_processing,
+            has_client=self._client is not None,
+            operation="transcription",
+        )
 
     def transcribe(self, audio: AudioSource, options: TranscriptionOptions) -> RawTranscript:
         if not self.config.allow_cloud_processing:

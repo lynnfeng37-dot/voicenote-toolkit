@@ -27,6 +27,10 @@ class VoiceNoteSkill(ABC):
 
     manifest: SkillManifest
 
+    def validate_configuration(self) -> None:
+        """Check local references without making provider calls."""
+        return None
+
     @abstractmethod
     def organize(
         self,

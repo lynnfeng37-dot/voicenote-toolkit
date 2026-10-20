@@ -5,6 +5,12 @@ public API reaches its first stable release.
 
 ## Unreleased
 
+- Added whole-pipeline local preflight for provider selection, skill names, correction policy,
+  cloud consent, SDK/API-key presence, and finance reference availability before transcription.
+- Added typed correction review concerns propagated locally into Semantic IR, notes, finance
+  minutes, and executive briefs, with source-specific flags and visible Markdown review notices.
+- Added regression tests for zero provider calls on invalid configuration, batch-local review
+  payloads, raw-coordinate preservation, omitted warnings, and persisted review metadata.
 - Added a custom project cover and GitHub social preview export, an offline correction-policy
   demo, a Chinese README, and a prioritized reliability roadmap.
 - Clarified citation-validation limits and the data sent to correction and reasoning providers.

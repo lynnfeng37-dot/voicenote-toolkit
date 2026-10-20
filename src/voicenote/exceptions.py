@@ -13,6 +13,10 @@ class ProviderNotConfiguredError(VoiceNoteError):
     """Raised when a requested stage has no configured provider."""
 
 
+class ConfigurationError(VoiceNoteError):
+    """Raised before processing when a local pipeline setting is inconsistent."""
+
+
 class ProviderError(VoiceNoteError):
     """Raised when a provider fails without a more specific domain error."""
 

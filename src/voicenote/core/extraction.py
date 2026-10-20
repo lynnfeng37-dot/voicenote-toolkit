@@ -4,12 +4,19 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from voicenote.core.review import (
+    collect_review_concerns,
+    concerns_for_sources,
+    with_semantic_review,
+)
 from voicenote.core.schemas import (
     CorrectedSegment,
     CorrectedTranscript,
+    ReviewConcern,
     SemanticDocument,
     SemanticItem,
 )
+from voicenote.core.validation import validate_semantic_document
 from voicenote.exceptions import ProvenanceError
 from voicenote.providers.base import ReasoningProvider, ReasoningRequest
 
@@ -41,9 +48,10 @@ def extract_semantic_document(
     if max_batch_characters <= 0:
         raise ValueError("max_batch_characters must be positive")
     extracted: list[ExtractedSemanticDocument] = []
+    concerns = collect_review_concerns(transcript)
     for batch in _batch_segments(transcript.segments, max_batch_characters):
         result = provider.generate_structured(
-            build_extraction_request(batch), ExtractedSemanticDocument
+            build_extraction_request(batch, concerns), ExtractedSemanticDocument
         )
         _validate_batch_sources(result, {segment.id for segment in batch})
         extracted.append(result)
@@ -56,12 +64,14 @@ def extract_semantic_document(
             _convert(item) for batch in extracted for item in batch.open_questions
         ),
     )
-    from voicenote.core.validation import validate_semantic_document
     validate_semantic_document(document, transcript)
-    return document
+    return with_semantic_review(document, transcript)
 
 
-def build_extraction_request(segments: tuple[CorrectedSegment, ...]) -> ReasoningRequest:
+def build_extraction_request(
+    segments: tuple[CorrectedSegment, ...],
+    review_concerns: tuple[ReviewConcern, ...] = (),
+) -> ReasoningRequest:
     """Create a provider-neutral request containing only corrected, citable segments."""
     return ReasoningRequest(
         task="extract_semantic_document",
@@ -69,7 +79,9 @@ def build_extraction_request(segments: tuple[CorrectedSegment, ...]) -> Reasonin
             "Extract only claims explicitly supported by the supplied corrected segments. "
             "Preserve names, numbers, units, dates, qualifications, uncertainty, and speaker "
             "attribution. Do not infer missing facts. Every item, entity, and open question must "
-            "cite one or more supplied segment IDs."
+            "cite one or more supplied segment IDs. Treat supplied review_concerns as unresolved: "
+            "preserve their uncertainty and never treat a rejected proposed_text as a fact. "
+            "original_span refers to raw text, not corrected text; do not reapply these edits."
         ),
         payload={"segments": [
             {
@@ -78,6 +90,11 @@ def build_extraction_request(segments: tuple[CorrectedSegment, ...]) -> Reasonin
                 "start_seconds": segment.start_seconds, "end_seconds": segment.end_seconds,
             }
             for segment in segments
+        ], "review_concerns": [
+            concern.model_dump(mode="json")
+            for concern in concerns_for_sources(
+                review_concerns, (segment.id for segment in segments)
+            )
         ]},
     )
 

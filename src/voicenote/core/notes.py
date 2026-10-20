@@ -2,6 +2,7 @@
 
 from pydantic import BaseModel, ConfigDict
 
+from voicenote.core.review import concerns_for_sources, with_semantic_review
 from voicenote.core.schemas import CleanNotes, CorrectedTranscript, NoteSection, SemanticDocument
 from voicenote.core.validation import validate_clean_notes
 from voicenote.providers.base import ReasoningProvider, ReasoningRequest
@@ -24,6 +25,7 @@ class GeneratedCleanNotes(BaseModel):
 def create_clean_notes(
     document: SemanticDocument, transcript: CorrectedTranscript, provider: ReasoningProvider
 ) -> CleanNotes:
+    document = with_semantic_review(document, transcript)
     generated = provider.generate_structured(build_notes_request(document), GeneratedCleanNotes)
     notes = CleanNotes(
         title=generated.title,
@@ -31,7 +33,11 @@ def create_clean_notes(
             title=section.title, paragraphs=tuple(section.paragraphs),
             bullets=tuple(section.bullets),
             source_segment_ids=tuple(section.source_segment_ids),
+            review_concerns=concerns_for_sources(
+                document.review_concerns, section.source_segment_ids
+            ),
         ) for section in generated.sections),
+        review_concerns=document.review_concerns,
     )
     validate_clean_notes(notes, document, transcript)
     return notes
@@ -44,7 +50,9 @@ def build_notes_request(document: SemanticDocument) -> ReasoningRequest:
             "Organize concise, readable notes using only the supplied semantic document. Adapt "
             "the section structure to the content; remove filler and repetition, but preserve "
             "important details and qualifications. Never add facts or strengthen claims. Every "
-            "non-empty section must cite source segment IDs already present in its semantic items."
+            "non-empty section must cite source segment IDs already present in its semantic items. "
+            "Keep review_concerns visibly uncertain; rejected proposed_text is not a fact. "
+            "Do not resolve ambiguous names or numbers by guessing."
         ),
         payload=document.model_dump(mode="json"),
     )

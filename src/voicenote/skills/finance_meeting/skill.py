@@ -6,14 +6,16 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict
 
+from voicenote.core.review import concerns_for_sources
 from voicenote.core.schemas import (
     BriefItem,
     ExecutiveBrief,
     MeetingMinutes,
     NoteSection,
+    ReviewConcern,
     SemanticDocument,
 )
-from voicenote.exceptions import ProvenanceError
+from voicenote.exceptions import ConfigurationError, ProvenanceError
 from voicenote.providers.base import ReasoningProvider, ReasoningRequest
 from voicenote.skills.base import VoiceNoteSkill
 from voicenote.skills.finance_meeting import manifest
@@ -56,6 +58,14 @@ class FinanceMeetingSkill(VoiceNoteSkill):
 
     manifest = manifest()
 
+    def validate_configuration(self) -> None:
+        try:
+            self._references()
+        except OSError as error:
+            raise ConfigurationError(
+                "Finance Meeting reference files are unavailable; reinstall the package"
+            ) from error
+
     def organize(
         self, document: SemanticDocument, provider: ReasoningProvider
     ) -> MeetingMinutes:
@@ -77,11 +87,15 @@ class FinanceMeetingSkill(VoiceNoteSkill):
                     paragraphs=tuple(section.paragraphs),
                     bullets=tuple(section.bullets),
                     source_segment_ids=tuple(section.source_segment_ids),
+                    review_concerns=concerns_for_sources(
+                        document.review_concerns, section.source_segment_ids
+                    ),
                 )
                 for section in generated.sections
                 if section.paragraphs or section.bullets
             ),
             warnings=tuple(generated.warnings) + self._local_warnings(document),
+            review_concerns=document.review_concerns,
         )
         _validate_minutes(minutes, document)
         return minutes
@@ -99,7 +113,8 @@ class FinanceMeetingSkill(VoiceNoteSkill):
                     "Compress the finance minutes into only material points. Use only supplied "
                     "content; do not add implications or strengthen uncertainty. Put each point "
                     "under the best matching category and preserve its supporting source IDs. "
-                    "Omit categories with no supported content."
+                    "Omit categories with no supported content. Preserve all review_concerns "
+                    "as unresolved; rejected correction proposals must not become factual claims."
                 ),
                 payload={
                     "minutes": minutes.model_dump(mode="json"),
@@ -109,12 +124,13 @@ class FinanceMeetingSkill(VoiceNoteSkill):
             GeneratedExecutiveBrief,
         )
         brief = ExecutiveBrief(
-            what_happened=_brief_items(generated.what_happened),
-            important_views=_brief_items(generated.important_views),
-            changes=_brief_items(generated.changes),
-            decisions=_brief_items(generated.decisions),
-            risks=_brief_items(generated.risks),
-            actions=_brief_items(generated.actions),
+            what_happened=_brief_items(generated.what_happened, document.review_concerns),
+            important_views=_brief_items(generated.important_views, document.review_concerns),
+            changes=_brief_items(generated.changes, document.review_concerns),
+            decisions=_brief_items(generated.decisions, document.review_concerns),
+            risks=_brief_items(generated.risks, document.review_concerns),
+            actions=_brief_items(generated.actions, document.review_concerns),
+            review_concerns=document.review_concerns,
         )
         _validate_brief(brief, document)
         return brief
@@ -127,7 +143,9 @@ class FinanceMeetingSkill(VoiceNoteSkill):
                 "Use only the supplied Semantic IR. Separate facts, attributed views, and open "
                 "questions; preserve numbers, periods, units, currencies, qualifications, and "
                 "speaker attribution. Do not manufacture headings or content. Omit empty sections. "
-                "Every non-empty section must cite source IDs present in its semantic items."
+                "Every non-empty section must cite source IDs present in its semantic items. "
+                "Preserve review_concerns as unresolved, especially names and numbers. "
+                "Do not adopt rejected proposed_text or present a review-required edit as certain."
             ),
             payload=document.model_dump(mode="json"),
             references=self._references(),
@@ -156,9 +174,15 @@ class FinanceMeetingSkill(VoiceNoteSkill):
         return tuple(warnings)
 
 
-def _brief_items(items: list[GeneratedBriefItem]) -> tuple[BriefItem, ...]:
+def _brief_items(
+    items: list[GeneratedBriefItem], concerns: tuple[ReviewConcern, ...]
+) -> tuple[BriefItem, ...]:
     return tuple(
-        BriefItem(text=item.text, source_segment_ids=tuple(item.source_segment_ids))
+        BriefItem(
+            text=item.text,
+            source_segment_ids=tuple(item.source_segment_ids),
+            review_concerns=concerns_for_sources(concerns, item.source_segment_ids),
+        )
         for item in items
     )
 

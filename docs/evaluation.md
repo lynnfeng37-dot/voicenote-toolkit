@@ -31,3 +31,17 @@ Finance-skill evaluation additionally checks meeting classification, omission of
 sections, fact-versus-view separation, action-item fidelity, numeric qualifiers, and per-point brief
 citations. A concise brief with an unsupported claim fails even when its prose is otherwise useful.
 
+## Implemented reliability regressions
+
+Preflight tests use providers that record calls and a deliberately unreadable input path. Missing
+downstream providers, unknown skills, invalid policy settings, absent SDKs/keys, unreadable skill
+references, and disabled cloud consent must fail with no ASR, correction, or reasoning calls.
+Separate checks verify that unused cloud providers do not block a transcription-only request and
+that local preflight does not load models.
+
+Review-propagation tests cover sensitive percentages, applied-but-flagged company names, an earlier
+length-changing edit, imported uncertainties without correction records, per-batch scoping, JSON
+round trips, and Markdown notices. Scripted reasoning intentionally returns no warning metadata;
+the source concerns must survive every stage, including when the model omits uncertain content.
+These tests prove metadata retention and policy behavior, not real model accuracy or entailment.
+

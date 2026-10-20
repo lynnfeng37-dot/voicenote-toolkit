@@ -24,3 +24,8 @@ from the IR. Local warnings surface ambiguous meeting type and semantic items be
 Its Executive Brief is a separate compression pass over the validated minutes and IR. Every brief
 point carries its own source segment IDs; unsupported or citation-free points fail closed.
 
+The pipeline calls a local `validate_configuration()` hook before ASR; the finance implementation
+checks that its Markdown reference files can be read. Review concerns in the Semantic IR are
+attached locally to minutes sections and brief points according to their source IDs, with a complete
+document-level list preserved even when the generated prose omits the affected material.
+

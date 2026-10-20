@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any
+from typing import Any, Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -152,6 +152,22 @@ class CorrectedTranscript(FrozenModel):
         return "\n".join(segment.corrected_text for segment in self.segments)
 
 
+class ReviewConcern(FrozenModel):
+    """Locally propagated correction concern; offsets always refer to the raw segment."""
+
+    segment_id: str
+    original_text: str
+    current_text: str
+    proposed_text: str | None = None
+    original_span: TextSpan
+    confidence: float = Field(ge=0, le=1)
+    reason: str
+    decision: Literal[CorrectionDecision.APPLY_AND_FLAG, CorrectionDecision.RETAIN_UNCERTAIN]
+    category: str = "uncertain"
+    sensitive: bool = False
+    evidence: tuple[str, ...] = ()
+
+
 class SemanticItem(FrozenModel):
     id: str = Field(default_factory=lambda: str(uuid4()))
     field: str
@@ -160,6 +176,7 @@ class SemanticItem(FrozenModel):
     speaker: str | None = None
     confidence: float = Field(ge=0, le=1)
     attributes: dict[str, Any] = Field(default_factory=dict)
+    review_concerns: tuple[ReviewConcern, ...] = ()
 
 
 class SemanticDocument(FrozenModel):
@@ -167,6 +184,7 @@ class SemanticDocument(FrozenModel):
     items: tuple[SemanticItem, ...]
     entities: tuple[SemanticItem, ...] = ()
     open_questions: tuple[SemanticItem, ...] = ()
+    review_concerns: tuple[ReviewConcern, ...] = ()
 
 
 class NoteSection(FrozenModel):
@@ -174,11 +192,13 @@ class NoteSection(FrozenModel):
     paragraphs: tuple[str, ...] = ()
     bullets: tuple[str, ...] = ()
     source_segment_ids: tuple[str, ...] = ()
+    review_concerns: tuple[ReviewConcern, ...] = ()
 
 
 class CleanNotes(FrozenModel):
     title: str | None = None
     sections: tuple[NoteSection, ...]
+    review_concerns: tuple[ReviewConcern, ...] = ()
 
 
 class MeetingMinutes(FrozenModel):
@@ -187,11 +207,13 @@ class MeetingMinutes(FrozenModel):
     title: str | None = None
     sections: tuple[NoteSection, ...]
     warnings: tuple[str, ...] = ()
+    review_concerns: tuple[ReviewConcern, ...] = ()
 
 
 class BriefItem(FrozenModel):
     text: str
     source_segment_ids: tuple[str, ...]
+    review_concerns: tuple[ReviewConcern, ...] = ()
 
 
 class ExecutiveBrief(FrozenModel):
@@ -201,6 +223,7 @@ class ExecutiveBrief(FrozenModel):
     decisions: tuple[BriefItem, ...] = ()
     risks: tuple[BriefItem, ...] = ()
     actions: tuple[BriefItem, ...] = ()
+    review_concerns: tuple[ReviewConcern, ...] = ()
 
 
 class RunManifest(FrozenModel):

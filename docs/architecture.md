@@ -28,6 +28,8 @@ local audio
 8. Persistence happens after successful processing. Per-stage checkpoints and resume are planned;
    see [the roadmap](roadmap.md).
 9. Every non-empty note section cites transcript segments already represented in the Semantic IR.
+10. Requested stages and locally detectable provider/skill prerequisites are checked before ASR.
+11. Correction review concerns are retained in downstream artifacts independently of model output.
 
 ## Layer boundaries
 
@@ -44,6 +46,22 @@ local provenance checks.
 The Finance Meeting Skill consumes that validated IR and produces adaptive professional minutes.
 The optional executive-brief pass consumes both IR and minutes, with citations attached to each
 individual brief point rather than to the document as a whole.
+
+## Correction review propagation
+
+`ReviewConcern` distinguishes an unchanged uncertain token (`retain_uncertain`) from a correction
+already applied but requiring review (`apply_and_flag`). Its `original_span` always addresses the
+raw segment, even if an earlier edit changed the length of the corrected text. The original,
+currently used, and proposed values are stored separately.
+
+`core.review` constructs concerns from the deterministic correction decisions and imported
+uncertainties. Extraction sends only the active batch's concerns, then locally annotates the IR.
+Notes, domain minutes, and briefs retain a document-wide list plus source-specific flags on their
+sections or points. A model cannot remove this metadata by returning an empty warnings list or by
+omitting an uncertain item. Markdown shows a review appendix and markers next to affected content.
+
+These flags indicate source-level review needs. They do not establish factual entailment or prevent
+a model from writing an incorrect sentence with a valid source citation.
 
 ## Versioning
 

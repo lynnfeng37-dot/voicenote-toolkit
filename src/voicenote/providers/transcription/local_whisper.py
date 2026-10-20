@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
+from importlib.util import find_spec
 from pathlib import Path
 from typing import Any, Protocol, cast
 
@@ -71,6 +72,16 @@ class LocalWhisperProvider(TranscriptionProvider):
         self.config = config or LocalWhisperConfig()
         self._model_factory = model_factory
         self._model: WhisperModelLike | None = None
+
+    def validate_configuration(self) -> None:
+        if (
+            self._model is None
+            and self._model_factory is None
+            and find_spec("faster_whisper") is None
+        ):
+            raise OptionalDependencyError(
+                "Local provider requires `pip install voicenote-toolkit[local-asr]`"
+            )
 
     def transcribe(self, audio: AudioSource, options: TranscriptionOptions) -> RawTranscript:
         if options.diarization:

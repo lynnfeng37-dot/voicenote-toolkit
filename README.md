@@ -62,6 +62,8 @@ every generated statement. Review generated notes against the transcript. See
 - OpenAI transcription with timestamp and optional speaker-segment support
 - Schema-constrained transcript correction
 - Deterministic correction confidence policy and Markdown audit
+- Whole-request local preflight before transcription starts
+- Review concerns retained through notes, minutes, and briefs
 - Batched, source-grounded Semantic IR extraction
 - Adaptive clean notes without a rigid universal template
 - Finance Meeting Skill for research, portfolio, strategy, roadshow, and investment meetings
@@ -245,6 +247,11 @@ The model proposes exact source text and an occurrence index—not trusted chara
 VoiceNote anchors each proposal locally, checks for conflicts, applies stricter sensitive-entity
 thresholds, and records the final decision. See [the provider design](docs/providers.md).
 
+Low-confidence suggestions retain the original token, while medium-confidence edits remain flagged
+after application. Local code carries both kinds of `review_concerns` into downstream JSON and
+Markdown, even when the model returns no warnings. Raw character positions remain tied to the
+original segment; flagged sections and brief points display a review marker.
+
 ## Finance Meeting Skill
 
 The first official domain skill supports:
@@ -274,6 +281,11 @@ See [the skill design](docs/skills.md) and
 
 Importing VoiceNote never inspects API keys, contacts a service, or downloads a model. The presence
 of `OPENAI_API_KEY` does not itself authorize an upload.
+
+Processing starts with a local preflight of all requested stages, including provider selection,
+skill names, correction thresholds, consent, SDKs, and API-key presence where needed. Actual key
+validity, model availability, and hardware compatibility are checked at runtime. Custom providers
+can supply their own local `validate_configuration()` hook.
 
 ## Architecture
 

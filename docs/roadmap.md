@@ -5,10 +5,15 @@ engineering milestones, not guarantees about model output quality.
 
 ## Next engineering milestones
 
+Completed in the current reliability update:
+
+- Whole-request preflight for selected providers, skill names, correction thresholds, cloud consent,
+  installed SDKs, environment API-key presence, and readable finance reference files.
+- Local propagation of retained uncertainties and applied-but-flagged corrections through Semantic
+  IR, notes, minutes, and brief points, with visible Markdown review notices.
+
 | Priority | Update | Acceptance criteria |
 | --- | --- | --- |
-| P0 | Validate the entire requested pipeline before starting | Unknown skills and missing later-stage providers fail before transcription or any cloud request. |
-| P0 | Preserve uncertainty across extraction and compression | Correction uncertainty metadata reaches semantic extraction; uncertain names and numbers remain flagged in notes, minutes, and briefs. |
 | P0 | Strengthen content verification | Golden fixtures measure numbers, attribution, qualifiers, and unsupported claims; valid source IDs alone do not count as factual verification. |
 | P1 | Save stage checkpoints and support resume | A later-stage provider error leaves completed artifacts available without retranscribing audio. |
 | P1 | Cover long inputs end to end | Extraction and later organization stages handle large IR inputs; oversized individual segments have explicit handling. |
@@ -25,9 +30,17 @@ checked against source IDs present in the Semantic IR.
 These checks validate references, not factual entailment. A model can cite a real segment while
 misstating its content. Confidence scores are model estimates, not calibrated probabilities.
 
-Semantic extraction currently sends corrected segment text and metadata, but not the correction
-uncertainty records. Later compression prompts request fidelity, but propagation of unresolved
-corrections needs explicit data and evaluation coverage.
+Extraction sends corrected text with review concerns scoped to the active batch. Semantic IR keeps
+the full concern list, even if a model omits the affected content. Local code attaches the relevant
+concerns to every item, section, and brief point citing a flagged segment, and renderers expose
+them in Markdown. Flags are conservative at segment level: they do not assert that every statement
+in a flagged section is uncertain. This metadata does not prove that model prose obeys it; content
+verification remains the next P0 milestone.
+
+Preflight performs no network or model calls. It cannot verify API-key validity, remote model
+availability, GPU compatibility, or the presence of cached model weights. Unused providers are not
+validated for a shorter requested stage. Custom providers can implement `validate_configuration()`
+to check their own local prerequisites.
 
 The pipeline returns a result after the requested stages finish. The CLI then persists it, so an
 intermediate failure currently prevents a new completed run directory from being written.

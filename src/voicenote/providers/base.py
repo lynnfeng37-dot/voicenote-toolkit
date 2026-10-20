@@ -54,7 +54,14 @@ class ReasoningRequest(BaseModel):
     references: tuple[str, ...] = ()
 
 
-class TranscriptionProvider(ABC):
+class Provider:
+    """Common local preflight hook; implementations must not contact external services."""
+
+    def validate_configuration(self) -> None:
+        """Check locally detectable prerequisites without loading models or making requests."""
+
+
+class TranscriptionProvider(Provider, ABC):
     """Turn local audio metadata into an immutable raw transcript."""
 
     name: str
@@ -64,7 +71,7 @@ class TranscriptionProvider(ABC):
         """Transcribe audio without rewriting the provider's recognized text."""
 
 
-class CorrectionProvider(ABC):
+class CorrectionProvider(Provider, ABC):
     """Propose corrections; the deterministic core decides whether to apply them."""
 
     name: str
@@ -78,7 +85,7 @@ class CorrectionProvider(ABC):
         """Return auditable proposals without mutating the transcript."""
 
 
-class ReasoningProvider(ABC):
+class ReasoningProvider(Provider, ABC):
     """Generate schema-constrained semantic artifacts."""
 
     name: str
