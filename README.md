@@ -348,9 +348,3 @@ explicit, and add provenance-focused tests for new transformations.
 ## License
 
 VoiceNote is available under the [Apache License 2.0](LICENSE).
-
----
-
-### 中文简介
-
-VoiceNote 是一个强调**可纠错、可追溯、可扩展**的语音知识处理工具包。它保留原始转写，记录每一次纠错，并让笔记、财经会议纪要和执行摘要都能回溯到来源分段。项目默认不因为检测到 API Key 就上传文件；云端处理和本地模型下载都需要显式授权。
