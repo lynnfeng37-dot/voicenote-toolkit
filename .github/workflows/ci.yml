@@ -23,4 +23,5 @@ jobs:
       - run: ruff check .
       - run: mypy src/voicenote
       - run: pytest --cov=voicenote --cov-report=term-missing
+      - run: python examples/offline_correction_demo.py
 

@@ -25,7 +25,8 @@ local audio
 5. Semantic claims retain source segment IDs.
 6. Renderers format artifacts but do not infer new information.
 7. Cloud access requires explicit provider selection and configuration.
-8. A failed later stage does not invalidate already persisted earlier artifacts.
+8. Persistence happens after successful processing. Per-stage checkpoints and resume are planned;
+   see [the roadmap](roadmap.md).
 9. Every non-empty note section cites transcript segments already represented in the Semantic IR.
 
 ## Layer boundaries

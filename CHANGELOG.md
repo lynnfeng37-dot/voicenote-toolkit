@@ -5,6 +5,9 @@ public API reaches its first stable release.
 
 ## Unreleased
 
+- Added a custom project cover and GitHub social preview export, an offline correction-policy
+  demo, a Chinese README, and a prioritized reliability roadmap.
+- Clarified citation-validation limits and the data sent to correction and reasoning providers.
 - Created the initial package, schemas, provider contracts, pipeline boundaries, renderers,
   Finance Meeting Skill specification, tests, and Agent Skill entrypoint.
 - Added explicit local faster-whisper and OpenAI transcription adapters, provider configuration,

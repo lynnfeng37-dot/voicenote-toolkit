@@ -1,5 +1,7 @@
 # VoiceNote
 
+![VoiceNote — From speech to traceable knowledge](docs/assets/voicenote-social-preview.jpg)
+
 [![CI](https://github.com/lynnfeng37-dot/voicenote-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/lynnfeng37-dot/voicenote-toolkit/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB.svg)](https://www.python.org/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
@@ -7,8 +9,19 @@
 
 **A correctable, traceable, and extensible speech-to-knowledge toolkit.**
 
-VoiceNote turns recordings into faithful transcripts, auditable corrections, readable notes, and
-domain-specific meeting minutes. It is a Python library and CLI—not a one-off summarization demo.
+Turn recordings into transcripts, auditable corrections, notes, and finance meeting minutes
+with a Python library and CLI. Keep the original transcript and follow citations back to it.
+
+[Try without an API key](#try-without-an-api-key) · [Install](#installation) ·
+[Python API](#python-api) · [Roadmap](docs/roadmap.md) · [中文说明](README.zh-CN.md)
+
+```bash
+python -m pip install -e .
+python examples/offline_correction_demo.py
+```
+
+Run these commands from a source checkout. The example uses synthetic text and hand-authored
+proposals to demonstrate the correction policy and saved audit, without downloading models.
 
 ```text
 Audio
@@ -27,17 +40,21 @@ Every completed stage remains available. Later outputs never replace the evidenc
 
 ## Why VoiceNote?
 
-Most transcription tools optimize for a polished final paragraph. VoiceNote optimizes for trust.
+VoiceNote keeps the evidence chain visible while turning speech into readable documents.
 
 - **Correctable** — ASR changes carry source spans, confidence, reasons, evidence, and decisions.
 - **Traceable** — semantic items, note sections, minutes, and brief points retain source segment IDs.
 - **Extensible** — transcription, correction, reasoning, renderers, and domain skills are separate.
-- **Fail-closed** — stale spans, conflicting edits, invented citations, and unsupported claims are
-  rejected instead of silently accepted.
+- **Validated references** — stale spans, conflicting edits, missing required citations, and
+  unknown source IDs are rejected locally.
 - **Privacy-conscious** — providers and network permissions must be selected explicitly.
 
 Sensitive entities such as names, companies, dates, percentages, monetary values, ticker symbols,
 valuation multiples, and financial metrics use stricter correction thresholds.
+
+Citation validation checks whether a source ID exists; it does not prove that the source supports
+every generated statement. Review generated notes against the transcript. See
+[current limitations and priorities](docs/roadmap.md).
 
 ## Features
 
@@ -91,7 +108,28 @@ python -m pip install -e ".[dev]"
 
 ## Quick start
 
+### Try without an API key
+
+After installing the core package, run:
+
+```bash
+python examples/offline_correction_demo.py
+```
+
+The demo runs the real correction policy and artifact writer on a synthetic example:
+
+| Source text | Proposal | Result |
+| --- | --- | --- |
+| `Sharp ratio` | `Sharpe ratio`, confidence 0.97 | Applied and recorded |
+| `15%` | `50%`, confidence 0.80, sensitive | Original retained; uncertainty recorded |
+
+Open the generated `output/offline-demo/<run-id>/corrections.md` to inspect the audit.
+These hand-authored proposals illustrate behavior; they are not model-quality measurements.
+
 ### 1. Transcribe locally
+
+Install the `local-asr` extra first. The following multiline commands use Bash syntax;
+in PowerShell, put each command on one line or use a backtick for line continuation.
 
 ```bash
 voicenote meeting.m4a \
@@ -105,6 +143,7 @@ Model downloads are disabled by default. After the weights are cached, omit
 
 ### 2. Generate corrected notes
 
+For this example, install both extras with `python -m pip install -e ".[local-asr,openai]"`.
 Set an API key in your environment, then explicitly authorize cloud processing:
 
 ```bash
@@ -119,8 +158,8 @@ voicenote meeting.m4a \
   --until notes
 ```
 
-With this configuration, audio transcription stays local while corrected transcript text and
-Semantic IR are sent to the selected reasoning provider.
+With this configuration, audio transcription stays local. Raw transcript text goes to the
+correction provider; corrected text and Semantic IR go to the reasoning provider.
 
 ### 3. Run the complete finance workflow
 
@@ -298,6 +337,8 @@ Planned after the MVP:
 - REST API
 - additional community domain skills
 - diarization UX, HTML/DOCX export, and real-time workflows
+
+See [the prioritized roadmap](docs/roadmap.md) for acceptance criteria and known limits.
 
 ## Contributing
 
