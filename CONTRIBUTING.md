@@ -11,6 +11,7 @@ python -m pip install -e ".[dev]"
 pytest
 ruff check .
 mypy src/voicenote
+python -m voicenote.evaluation evals/golden
 ```
 
 ## Design expectations
@@ -24,4 +25,9 @@ mypy src/voicenote
 
 New domain skills should declare their semantic fields and references without changing the core
 pipeline. See `docs/skills.md`.
+
+For content transformations, add explicit golden assertions and a regression test for a plausible
+failure (for example, an altered number with a valid citation). Keep numeric units, attributed views,
+and qualifications in scope. See [`evals/README.md`](evals/README.md) for fixture authoring and the
+difference between synthetic regression checks and measured model quality.
 

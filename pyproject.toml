@@ -40,6 +40,7 @@ dev = [
 
 [project.scripts]
 voicenote = "voicenote.cli:app"
+voicenote-eval = "voicenote.evaluation.cli:app"
 
 [project.urls]
 Documentation = "https://github.com/lynnfeng37-dot/voicenote-toolkit"

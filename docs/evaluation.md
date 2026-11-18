@@ -1,5 +1,16 @@
 # Evaluation
 
+The offline runner is implemented in `voicenote.evaluation`; fixture format and examples are in
+[`evals/README.md`](../evals/README.md). Run it with:
+
+```bash
+python -m voicenote.evaluation evals/golden --output output/evaluation.json
+```
+
+An installed `voicenote-eval` entry point also supports `--result` to evaluate a persisted result
+against one fixture's expectations. This path does not call model providers. The three bundled
+cases use hand-authored synthetic results and are regression fixtures, not measured model outputs.
+
 Golden cases represent the full evidence chain:
 
 ```text
@@ -44,4 +55,17 @@ length-changing edit, imported uncertainties without correction records, per-bat
 round trips, and Markdown notices. Scripted reasoning intentionally returns no warning metadata;
 the source concerns must survive every stage, including when the model omits uncertain content.
 These tests prove metadata retention and policy behavior, not real model accuracy or entailment.
+
+## Content assertions
+
+Golden checks require annotated fragments to occur within a single item citing the specified
+sources. Checks can also assert structured speaker identity, permit specific wording alternatives,
+and forbid known unsupported claims anywhere in an artifact. Source integrity and citation
+validity are reported separately, so a numeric error with a valid citation still fails its numeric
+assertion. Unicode normalization supports fullwidth Chinese numbers and punctuation; numeric and
+ASCII word boundaries guard against substring false positives.
+
+Reports expose per-dimension assertion pass rates and artifact paths without transcript bodies.
+They do not estimate general factual accuracy, discover every unsupported claim, judge arbitrary
+paraphrases, or measure ASR quality from audio. Corpus expansion and human review remain necessary.
 

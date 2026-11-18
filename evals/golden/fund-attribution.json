@@ -1,0 +1,242 @@
+{
+  "case": {
+    "id": "fund-attribution",
+    "description": "Hand-authored synthetic finance regression; not a model benchmark.",
+    "source_segments": [
+      {
+        "id": "fund-a",
+        "text": "Alpha Fund returned 15%.",
+        "speaker": "A"
+      },
+      {
+        "id": "fund-b",
+        "text": "Beta Fund returned 50%.",
+        "speaker": "B"
+      }
+    ],
+    "checks": [
+      {
+        "id": "alpha-return",
+        "dimension": "numeric",
+        "artifact": "notes",
+        "source_segment_ids": [
+          "fund-a"
+        ],
+        "must_include": [
+          "Alpha Fund",
+          "15%"
+        ],
+        "must_exclude": []
+      },
+      {
+        "id": "beta-return",
+        "dimension": "numeric",
+        "artifact": "notes",
+        "source_segment_ids": [
+          "fund-b"
+        ],
+        "must_include": [
+          "Beta Fund",
+          "50%"
+        ],
+        "must_exclude": []
+      },
+      {
+        "id": "no-alpha-swap",
+        "dimension": "unsupported_claim",
+        "artifact": "notes",
+        "source_segment_ids": [
+          "fund-a"
+        ],
+        "must_include": [],
+        "must_exclude": [
+          "Alpha Fund returned 50%"
+        ]
+      },
+      {
+        "id": "alpha-speaker",
+        "dimension": "attribution",
+        "artifact": "semantic_document",
+        "source_segment_ids": [
+          "fund-a"
+        ],
+        "must_include": [
+          "Alpha Fund"
+        ],
+        "must_exclude": [],
+        "expected_speaker": "A"
+      }
+    ]
+  },
+  "result": {
+    "manifest": {
+      "run_id": "fund-attribution",
+      "voicenote_version": "0.1.0.dev0",
+      "requested_stage": "brief",
+      "completed_stages": [
+        "transcript",
+        "corrected",
+        "notes",
+        "minutes",
+        "brief"
+      ],
+      "warnings": [
+        "Synthetic reference output; no model or audio was used."
+      ]
+    },
+    "raw_transcript": {
+      "audio": {
+        "path": "synthetic-golden:no-recording",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "size_bytes": 0
+      },
+      "segments": [
+        {
+          "id": "fund-a",
+          "text": "Alpha Fund returned 15%.",
+          "speaker": "A"
+        },
+        {
+          "id": "fund-b",
+          "text": "Beta Fund returned 50%.",
+          "speaker": "B"
+        }
+      ],
+      "provider": {
+        "provider": "hand-authored-golden"
+      }
+    },
+    "corrected_transcript": {
+      "raw_transcript": {
+        "audio": {
+          "path": "synthetic-golden:no-recording",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "size_bytes": 0
+        },
+        "segments": [
+          {
+            "id": "fund-a",
+            "text": "Alpha Fund returned 15%.",
+            "speaker": "A"
+          },
+          {
+            "id": "fund-b",
+            "text": "Beta Fund returned 50%.",
+            "speaker": "B"
+          }
+        ],
+        "provider": {
+          "provider": "hand-authored-golden"
+        }
+      },
+      "segments": [
+        {
+          "id": "fund-a",
+          "original_text": "Alpha Fund returned 15%.",
+          "corrected_text": "Alpha Fund returned 15%.",
+          "speaker": "A"
+        },
+        {
+          "id": "fund-b",
+          "original_text": "Beta Fund returned 50%.",
+          "corrected_text": "Beta Fund returned 50%.",
+          "speaker": "B"
+        }
+      ]
+    },
+    "semantic_document": {
+      "meeting_type": "internal_investment",
+      "items": [
+        {
+          "id": "a",
+          "field": "performance_review",
+          "content": "Alpha Fund returned 15%.",
+          "source_segment_ids": [
+            "fund-a"
+          ],
+          "speaker": "A",
+          "confidence": 0.9
+        },
+        {
+          "id": "b",
+          "field": "performance_review",
+          "content": "Beta Fund returned 50%.",
+          "source_segment_ids": [
+            "fund-b"
+          ],
+          "speaker": "B",
+          "confidence": 0.9
+        }
+      ]
+    },
+    "notes": {
+      "title": "Reference notes",
+      "sections": [
+        {
+          "title": null,
+          "paragraphs": [],
+          "bullets": [
+            "Alpha Fund returned 15%."
+          ],
+          "source_segment_ids": [
+            "fund-a"
+          ]
+        },
+        {
+          "title": null,
+          "paragraphs": [],
+          "bullets": [
+            "Beta Fund returned 50%."
+          ],
+          "source_segment_ids": [
+            "fund-b"
+          ]
+        }
+      ]
+    },
+    "meeting_minutes": {
+      "skill": "finance_meeting",
+      "meeting_type": "internal_investment",
+      "title": "Reference minutes",
+      "sections": [
+        {
+          "title": null,
+          "paragraphs": [],
+          "bullets": [
+            "Alpha Fund returned 15%."
+          ],
+          "source_segment_ids": [
+            "fund-a"
+          ]
+        },
+        {
+          "title": null,
+          "paragraphs": [],
+          "bullets": [
+            "Beta Fund returned 50%."
+          ],
+          "source_segment_ids": [
+            "fund-b"
+          ]
+        }
+      ]
+    },
+    "executive_brief": {
+      "important_views": [
+        {
+          "text": "Alpha Fund returned 15%.",
+          "source_segment_ids": [
+            "fund-a"
+          ]
+        },
+        {
+          "text": "Beta Fund returned 50%.",
+          "source_segment_ids": [
+            "fund-b"
+          ]
+        }
+      ],
+      "actions": []
+    }
+  }
+}

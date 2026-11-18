@@ -125,7 +125,7 @@ API Key 是否配置。检查不访问网络、不加载模型；密钥是否有
 语义中间表示、笔记、纪要及简报，不复制源录音。
 
 完整 Python 示例、产物目录和 Provider 边界见 [英文 README](README.md)。
-阶段预检查和不确定性传递已完成；后续重点是事实评测、失败后恢复及长录音支持，
+阶段预检查、不确定性传递和离线事实回归评测已完成；后续重点是扩展真实样本评测、失败后恢复及长录音支持，
 详见 [路线图](docs/roadmap.md)。
 
 ```bash
@@ -133,6 +133,12 @@ python -m pip install -e ".[dev]"
 python -m pytest
 python -m ruff check src tests examples
 python -m mypy src/voicenote
+python -m voicenote.evaluation evals/golden
 ```
+
+新增的评测工具覆盖数字与单位、观点归属、限定词、行动项及预先标注的无依据结论。
+支持中英文合成样本，也能对照单个样本检查已保存的 `result.json`。报告按维度统计
+断言通过率，且把来源校验与内容检查分开；它不能自动证明所有生成内容都真实。
+样本格式与使用方法见 [评测指南](evals/README.md)。
 
 采用 [Apache-2.0](LICENSE) 许可证。

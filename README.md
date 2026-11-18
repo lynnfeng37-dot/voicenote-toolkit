@@ -64,6 +64,7 @@ every generated statement. Review generated notes against the transcript. See
 - Deterministic correction confidence policy and Markdown audit
 - Whole-request local preflight before transcription starts
 - Review concerns retained through notes, minutes, and briefs
+- Offline golden regression evaluation for finance facts and citation integrity
 - Batched, source-grounded Semantic IR extraction
 - Adaptive clean notes without a rigid universal template
 - Finance Meeting Skill for research, portfolio, strategy, roadshow, and investment meetings
@@ -327,9 +328,16 @@ python -m pip install -e ".[dev]"
 python -m pytest --cov=voicenote --cov-report=term-missing
 python -m ruff check .
 python -m mypy src/voicenote
+python -m voicenote.evaluation evals/golden
 ```
 
 The current test suite uses fake providers; it does not upload recordings or call live model APIs.
+
+The evaluator checks explicit expectations for numbers, units, speaker attribution, qualifications,
+action items, and known unsupported claims. It can also score saved `result.json` files against a
+single golden fixture. Bundled results are synthetic; their pass rates are regression checks, not
+real-model accuracy or automatic proof that every generated statement is supported. See
+[the fixture guide](evals/README.md).
 
 ## Project status
 
@@ -344,7 +352,7 @@ Implemented:
 
 Planned after the MVP:
 
-- richer golden evaluation runner
+- broader human-reviewed evaluation corpus
 - stable plugin registration API
 - REST API
 - additional community domain skills

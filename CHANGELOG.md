@@ -5,6 +5,11 @@ public API reaches its first stable release.
 
 ## Unreleased
 
+- Added the offline `voicenote-eval` CLI/Python evaluation API, English/Chinese finance golden
+  fixtures, source evidence checks, citation checks, and per-dimension content assertion reports.
+- Added regressions for numeric/units errors with valid citations, misattribution, strengthened
+  qualifications, known unsupported claims, and evaluation CLI exit/report behavior; wired the
+  synthetic golden suite into CI.
 - Added whole-pipeline local preflight for provider selection, skill names, correction policy,
   cloud consent, SDK/API-key presence, and finance reference availability before transcription.
 - Added typed correction review concerns propagated locally into Semantic IR, notes, finance

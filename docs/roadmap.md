@@ -11,10 +11,13 @@ Completed in the current reliability update:
   installed SDKs, environment API-key presence, and readable finance reference files.
 - Local propagation of retained uncertainties and applied-but-flagged corrections through Semantic
   IR, notes, minutes, and brief points, with visible Markdown review notices.
+- An offline golden evaluation runner with English/Chinese finance fixtures, source-scoped checks
+  for numbers, units, attribution, qualifications, action items, and specified unsupported claims.
+  These are explicit regression assertions, not a general factual-entailment detector.
 
 | Priority | Update | Acceptance criteria |
 | --- | --- | --- |
-| P0 | Strengthen content verification | Golden fixtures measure numbers, attribution, qualifiers, and unsupported claims; valid source IDs alone do not count as factual verification. |
+| P0 | Expand factual evaluation coverage | Add human-reviewed real-output cases and broader domain labels beyond the synthetic regression suite; quantify behavior without treating literal assertion rates as general accuracy. |
 | P1 | Save stage checkpoints and support resume | A later-stage provider error leaves completed artifacts available without retranscribing audio. |
 | P1 | Cover long inputs end to end | Extraction and later organization stages handle large IR inputs; oversized individual segments have explicit handling. |
 | P1 | Verify packaging and provider compatibility | Build and install a wheel in a clean environment; verify bundled skill references and supported SDK versions. |

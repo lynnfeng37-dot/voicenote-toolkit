@@ -1,0 +1,352 @@
+{
+  "case": {
+    "id": "finance-zh",
+    "description": "Hand-authored synthetic finance regression; not a model benchmark.",
+    "source_segments": [
+      {
+        "id": "zh-1",
+        "text": "公司预计２０２６年收入１２．５亿元，但尚未确认。",
+        "speaker": "管理层"
+      },
+      {
+        "id": "zh-2",
+        "text": "研究员李明认为，如果需求恢复，毛利率可能达到１５％。",
+        "speaker": "李明"
+      },
+      {
+        "id": "zh-3",
+        "text": "王芳负责在２０２６年１２月１日前补充现金流分析，会议没有作出买入决定。",
+        "speaker": "主持人"
+      }
+    ],
+    "checks": [
+      {
+        "id": "revenue-cny",
+        "dimension": "numeric",
+        "artifact": "notes",
+        "source_segment_ids": [
+          "zh-1"
+        ],
+        "must_include": [
+          "１２．５亿元",
+          "２０２６"
+        ],
+        "must_exclude": []
+      },
+      {
+        "id": "gross-margin",
+        "dimension": "numeric",
+        "artifact": "meeting_minutes",
+        "source_segment_ids": [
+          "zh-2"
+        ],
+        "must_include": [
+          "１５％",
+          "毛利率"
+        ],
+        "must_exclude": []
+      },
+      {
+        "id": "analyst-entity",
+        "dimension": "entity",
+        "artifact": "notes",
+        "source_segment_ids": [
+          "zh-2"
+        ],
+        "must_include": [
+          "李明"
+        ],
+        "must_exclude": []
+      },
+      {
+        "id": "analyst-attribution",
+        "dimension": "attribution",
+        "artifact": "semantic_document",
+        "source_segment_ids": [
+          "zh-2"
+        ],
+        "must_include": [
+          "毛利率"
+        ],
+        "must_exclude": [],
+        "expected_speaker": "李明"
+      },
+      {
+        "id": "unconfirmed-guidance",
+        "dimension": "qualification",
+        "artifact": "executive_brief",
+        "source_segment_ids": [
+          "zh-1"
+        ],
+        "must_include": [
+          "预计",
+          "尚未确认"
+        ],
+        "must_exclude": []
+      },
+      {
+        "id": "conditional-margin",
+        "dimension": "qualification",
+        "artifact": "notes",
+        "source_segment_ids": [
+          "zh-2"
+        ],
+        "must_include": [
+          "如果需求恢复",
+          "可能"
+        ],
+        "must_exclude": []
+      },
+      {
+        "id": "cash-flow-action",
+        "dimension": "action",
+        "artifact": "executive_brief",
+        "source_segment_ids": [
+          "zh-3"
+        ],
+        "must_include": [
+          "王芳",
+          "2026年12月1日",
+          "现金流"
+        ],
+        "must_exclude": []
+      },
+      {
+        "id": "no-buy-decision",
+        "dimension": "unsupported_claim",
+        "artifact": "executive_brief",
+        "source_segment_ids": [
+          "zh-3"
+        ],
+        "must_include": [],
+        "must_exclude": [
+          "决定买入该公司"
+        ]
+      }
+    ]
+  },
+  "result": {
+    "manifest": {
+      "run_id": "finance-zh",
+      "voicenote_version": "0.1.0.dev0",
+      "requested_stage": "brief",
+      "completed_stages": [
+        "transcript",
+        "corrected",
+        "notes",
+        "minutes",
+        "brief"
+      ],
+      "warnings": [
+        "Synthetic reference output; no model or audio was used."
+      ]
+    },
+    "raw_transcript": {
+      "audio": {
+        "path": "synthetic-golden:no-recording",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "size_bytes": 0
+      },
+      "segments": [
+        {
+          "id": "zh-1",
+          "text": "公司预计２０２６年收入１２．５亿元，但尚未确认。",
+          "speaker": "管理层"
+        },
+        {
+          "id": "zh-2",
+          "text": "研究员李明认为，如果需求恢复，毛利率可能达到１５％。",
+          "speaker": "李明"
+        },
+        {
+          "id": "zh-3",
+          "text": "王芳负责在２０２６年１２月１日前补充现金流分析，会议没有作出买入决定。",
+          "speaker": "主持人"
+        }
+      ],
+      "provider": {
+        "provider": "hand-authored-golden"
+      }
+    },
+    "corrected_transcript": {
+      "raw_transcript": {
+        "audio": {
+          "path": "synthetic-golden:no-recording",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "size_bytes": 0
+        },
+        "segments": [
+          {
+            "id": "zh-1",
+            "text": "公司预计２０２６年收入１２．５亿元，但尚未确认。",
+            "speaker": "管理层"
+          },
+          {
+            "id": "zh-2",
+            "text": "研究员李明认为，如果需求恢复，毛利率可能达到１５％。",
+            "speaker": "李明"
+          },
+          {
+            "id": "zh-3",
+            "text": "王芳负责在２０２６年１２月１日前补充现金流分析，会议没有作出买入决定。",
+            "speaker": "主持人"
+          }
+        ],
+        "provider": {
+          "provider": "hand-authored-golden"
+        }
+      },
+      "segments": [
+        {
+          "id": "zh-1",
+          "original_text": "公司预计２０２６年收入１２．５亿元，但尚未确认。",
+          "corrected_text": "公司预计２０２６年收入１２．５亿元，但尚未确认。",
+          "speaker": "管理层"
+        },
+        {
+          "id": "zh-2",
+          "original_text": "研究员李明认为，如果需求恢复，毛利率可能达到１５％。",
+          "corrected_text": "研究员李明认为，如果需求恢复，毛利率可能达到１５％。",
+          "speaker": "李明"
+        },
+        {
+          "id": "zh-3",
+          "original_text": "王芳负责在２０２６年１２月１日前补充现金流分析，会议没有作出买入决定。",
+          "corrected_text": "王芳负责在２０２６年１２月１日前补充现金流分析，会议没有作出买入决定。",
+          "speaker": "主持人"
+        }
+      ]
+    },
+    "semantic_document": {
+      "meeting_type": "internal_investment",
+      "items": [
+        {
+          "id": "z1",
+          "field": "management_guidance",
+          "content": "管理层预计2026年收入12.5亿元，但尚未确认。",
+          "source_segment_ids": [
+            "zh-1"
+          ],
+          "speaker": "管理层",
+          "confidence": 0.9
+        },
+        {
+          "id": "z2",
+          "field": "company_view",
+          "content": "研究员李明认为，如果需求恢复，毛利率可能达到15%。",
+          "source_segment_ids": [
+            "zh-2"
+          ],
+          "speaker": "李明",
+          "confidence": 0.9
+        },
+        {
+          "id": "z3",
+          "field": "action_item",
+          "content": "王芳负责在2026年12月1日前补充现金流分析，会议没有作出买入决定。",
+          "source_segment_ids": [
+            "zh-3"
+          ],
+          "speaker": "主持人",
+          "confidence": 0.9
+        }
+      ]
+    },
+    "notes": {
+      "title": "Reference notes",
+      "sections": [
+        {
+          "title": null,
+          "paragraphs": [],
+          "bullets": [
+            "管理层预计2026年收入12.5亿元，但尚未确认。"
+          ],
+          "source_segment_ids": [
+            "zh-1"
+          ]
+        },
+        {
+          "title": null,
+          "paragraphs": [],
+          "bullets": [
+            "研究员李明认为，如果需求恢复，毛利率可能达到15%。"
+          ],
+          "source_segment_ids": [
+            "zh-2"
+          ]
+        },
+        {
+          "title": null,
+          "paragraphs": [],
+          "bullets": [
+            "王芳负责在2026年12月1日前补充现金流分析，会议没有作出买入决定。"
+          ],
+          "source_segment_ids": [
+            "zh-3"
+          ]
+        }
+      ]
+    },
+    "meeting_minutes": {
+      "skill": "finance_meeting",
+      "meeting_type": "internal_investment",
+      "title": "Reference minutes",
+      "sections": [
+        {
+          "title": null,
+          "paragraphs": [],
+          "bullets": [
+            "管理层预计2026年收入12.5亿元，但尚未确认。"
+          ],
+          "source_segment_ids": [
+            "zh-1"
+          ]
+        },
+        {
+          "title": null,
+          "paragraphs": [],
+          "bullets": [
+            "研究员李明认为，如果需求恢复，毛利率可能达到15%。"
+          ],
+          "source_segment_ids": [
+            "zh-2"
+          ]
+        },
+        {
+          "title": null,
+          "paragraphs": [],
+          "bullets": [
+            "王芳负责在2026年12月1日前补充现金流分析，会议没有作出买入决定。"
+          ],
+          "source_segment_ids": [
+            "zh-3"
+          ]
+        }
+      ]
+    },
+    "executive_brief": {
+      "important_views": [
+        {
+          "text": "管理层预计2026年收入12.5亿元，但尚未确认。",
+          "source_segment_ids": [
+            "zh-1"
+          ]
+        },
+        {
+          "text": "研究员李明认为，如果需求恢复，毛利率可能达到15%。",
+          "source_segment_ids": [
+            "zh-2"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "text": "王芳负责在2026年12月1日前补充现金流分析，会议没有作出买入决定。",
+          "source_segment_ids": [
+            "zh-3"
+          ]
+        }
+      ]
+    }
+  }
+}
